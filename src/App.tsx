@@ -1,25 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import "./App.css";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchPokemonList, loadMorePokemon } from "./reducers/scrollSlice";
+import { Dispatch } from "redux";
+import {
+  Button,
+  Container,
+  Heading,
+  List,
+  UnorderedList,
+} from "./styles/Styles";
+import { Global } from "./styles/Global";
 
 function App() {
+  const state = useSelector((state: any) => state.scroll);
+  const pokemonList = state.pokemonList;
+
+  const dispatch = useDispatch<Dispatch>();
+
+  useEffect(() => {
+    dispatch(fetchPokemonList());
+  }, [dispatch]);
+
+  const handleLoadMore = () => {
+    // console.log(state.nextUrl);
+    dispatch(loadMorePokemon(state.nextUrl));
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <Global />
+      <Heading>Redux Saga with Toolkit</Heading>
+      <UnorderedList>
+        {pokemonList?.map((pokemon: any, index: number) => {
+          return <List key={index}>{pokemon.name}</List>;
+        })}
+      </UnorderedList>
+      {state.isLoading ? (
+        <Heading>Loading...</Heading>
+      ) : (
+        <Button onClick={handleLoadMore}>Load More</Button>
+      )}
+    </Container>
   );
 }
 
